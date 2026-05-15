@@ -119,8 +119,6 @@ Todas as operações foram implementadas com `BigInteger`, usando o método `mod
 **Limitação do tipo Long para números grandes**  
 Inicialmente, `p` era lido com `Long.parseLong`, limitando o valor a 64 bits (~9,2 × 10¹⁸). A solução foi ler `p` diretamente como `new BigInteger(sc.nextLine())`.
 
-**Mensagem maior que p**  
-A conversão da string inteira para um único `BigInteger` (via `getBytes`) produzia números maiores que `p`, tornando a mensagem inválida para o ElGamal. A solução foi cifrar a mensagem **caractere por caractere**, onde cada bloco é o valor ASCII do caractere, sempre menor que `p`.
 
 **Operadores relacionais com BigInteger**  
 O Java não suporta os operadores `>=`, `<=`, `==` diretamente em `BigInteger`. Todas as comparações precisaram ser reescritas com `.compareTo()`, o que exigiu atenção redobrada na lógica das condições.
