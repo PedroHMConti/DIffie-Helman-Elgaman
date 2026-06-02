@@ -62,7 +62,18 @@ public class Main {
                     break;
 
                 case "4":
-                    System.out.println("em construção");
+                    Decriptador decriptador = new Decriptador();
+                    System.out.println("Informe o texto cifrado: ");
+                    BigInteger c = new BigInteger(sc.nextLine());
+                    System.out.println("Informe o x_B: ");
+                    BigInteger X_B = new BigInteger(sc.nextLine());
+                    System.out.println("Informe o y_A: ");
+                    BigInteger Y_A = new BigInteger(sc.nextLine());
+                    System.out.println("Informe o p: ");
+                    BigInteger P = new BigInteger(sc.nextLine());
+                    BigInteger mensagemNum = decriptador.decifrar(c,X_B,Y_A,P);
+                    mensagem = conversorDeMensagem.intToString(mensagemNum);
+                    System.out.println(mensagem);
                     break;
 
                 case "0":
