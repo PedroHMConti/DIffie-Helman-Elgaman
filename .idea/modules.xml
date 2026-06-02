@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Algoritmo-Diffie-Helman.iml" filepath="$PROJECT_DIR$/Algoritmo-Diffie-Helman.iml" />
+      <module fileurl="file://$PROJECT_DIR$/algoritmo-diffie-helman.iml" filepath="$PROJECT_DIR$/algoritmo-diffie-helman.iml" />
     </modules>
   </component>
 </project>

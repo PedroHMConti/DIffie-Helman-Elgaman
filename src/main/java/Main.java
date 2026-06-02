@@ -52,7 +52,7 @@ public class Main {
                     String mensagem = sc.nextLine();
                     BigInteger mensagemConvertida = conversorDeMensagem.stringToInt(mensagem);
                     if (mensagemConvertida.compareTo(p) >= 0 || mensagemConvertida.compareTo(BigInteger.ZERO) < 0) {
-                        System.out.println("Mensagem inválida");
+                        System.out.println("Mensagem inválida(maior do que o p)");
                         break;
                     }
                     Encriptador encriptador = new Encriptador();
