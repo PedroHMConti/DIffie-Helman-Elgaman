@@ -10,23 +10,23 @@
 
 ---
 
-## 0. Instruções para rodar a aplicação
+## 0. Instruções para compilar e executar a aplicação
 
 **Pré-requisito:** Docker instalado na máquina.
- 
+
 ```bash
 # Ubuntu/Debian
 sudo apt install docker.io
 sudo systemctl start docker
 ```
- 
+
 **Passos para executar:**
- 
+
 1. Baixe a imagem do Docker Hub:
    ```bash
    docker pull pedroconti/diffie-helman
    ```
- 
+
 2. Execute a aplicação (a flag `-it` é obrigatória):
    ```bash
    docker run -it pedroconti/diffie-helman
@@ -63,7 +63,16 @@ Implementada na classe `GeradorPrimo`. O usuário informa o tamanho desejado em 
 
 ### 2.2 Geração da Raiz Primitiva g
 
-Implementada na classe `GeradorRaizPrimitiva`. Para cada candidato a partir de 2, o algoritmo calcula todas as potências `g^i mod p` para `i` de `1` até `p-1`. Um valor é raiz primitiva se o conjunto de resultados contiver todos os inteiros de `1` a `p-1` sem repetição, ou seja, se gerar o grupo multiplicativo completo módulo `p`. O primeiro candidato que satisfizer essa condição é retornado como `g`.
+Implementada na classe `GeradorRaizPrimitiva`. O algoritmo utiliza o método baseado na fatoração de `p-1`:
+
+1. Calcula `p-1` e obtém seus fatores primos distintos `q₁, q₂, ..., qₖ`
+2. Para cada candidato `g` a partir de 2, verifica se `g` é raiz primitiva testando a condição:
+
+```
+g^((p-1)/q) ≢ 1 (mod p)  para todo fator primo q de p-1
+```
+
+Se algum fator `q` fizer `g^((p-1)/q) ≡ 1 (mod p)`, o candidato é descartado. O primeiro `g` que passar em todos os testes é retornado como raiz primitiva. Esse método é eficiente porque evita calcular todas as `p-1` potências, trabalhando apenas com os fatores primos distintos de `p-1`.
 
 ### 2.3 Geração das Chaves e Segredo Compartilhado
 
@@ -123,24 +132,61 @@ O participante B, de posse de `(C, y_A)` e sua chave secreta `x_B`:
 
 ## 4. Implementação do Miller-Rabin
 
-O algoritmo de Miller-Rabin é um teste de primalidade probabilístico usado para verificar se um candidato gerado é primo. Como não é determinístico, foi adotado `k = 10` rodadas, o que reduz a probabilidade de erro (falso positivo) para no máximo `4^(-10) ≈ 0,000001%`.
+O algoritmo de Miller-Rabin é um teste de primalidade probabilístico implementado manualmente na classe `GeradorPrimo`, método `millerRabin`. Com `k = 10` rodadas independentes, a probabilidade máxima de um falso positivo (composto classificado como primo) é `4^(-10) ≈ 9,5 × 10⁻⁷`.
 
-### 4.1 Funcionamento
+### 4.1 Base matemática
 
-Dado um candidato `n`, o algoritmo:
+O algoritmo parte do Pequeno Teorema de Fermat: se `n` é primo, então para qualquer base `a` com `1 < a < n-1`:
 
-1. Escreve `n - 1` na forma `2^r * d` (com `d` ímpar), fatorando os 2s
-2. Escolhe uma base `a` aleatória no intervalo `[2, n-2]`
-3. Calcula `x = a^d mod n`
-4. Se `x == 1` ou `x == n-1`, o candidato passa essa rodada
-5. Eleva `x` ao quadrado repetidamente até `r-1` vezes; se `x == n-1` em algum passo, passa
-6. Se nenhuma condição for satisfeita, `n` é composto — descartado
+```
+a^(n-1) ≡ 1 (mod n)
+```
 
-Após `k = 10` rodadas com bases diferentes, o candidato é considerado primo com alta confiança.
+Isso implica que `a^(n-1) - 1 ≡ 0 (mod n)`. Como `n` é primo e portanto ímpar (para `n > 2`), `n-1` é par e pode ser escrito como `n-1 = 2^r · d`, com `d` ímpar. Fatorando a diferença de quadrados repetidamente:
 
-### 4.2 Uso do BigInteger
+```
+a^(n-1) - 1 = (a^d - 1)(a^d + 1)(a^(2d) + 1) ··· (a^(2^(r-1)·d) + 1)
+```
 
-Todas as operações foram implementadas com `BigInteger`, usando o método `modPow` para exponenciação modular eficiente — indispensável dado o tamanho dos números envolvidos.
+Se `n` é primo, ele divide esse produto, logo deve dividir pelo menos um dos fatores. Isso significa que uma das seguintes condições deve ser verdadeira:
+
+```
+a^d         ≡  1  (mod n)   ← fator (a^d - 1)
+a^(2^j · d) ≡ -1  (mod n)   ← fator (a^(2^j·d) + 1), para algum j ∈ {0, ..., r-1}
+```
+
+Nota: `-1 mod n` equivale a `n-1`, por isso o código compara com `n.subtract(BigInteger.ONE)`.
+
+### 4.2 Etapas da implementação
+
+**Pré-processamento — fatoração de `n-1`:**
+
+```java
+int r = 0;
+BigInteger d = n.subtract(BigInteger.ONE);
+while (!d.testBit(0)) {   // enquanto d for par
+    d = d.shiftRight(1);  // d = d / 2
+    r++;
+}
+// ao sair: n-1 = 2^r · d, com d ímpar
+```
+
+Essa decomposição é feita uma única vez antes do loop das rodadas, pois depende apenas de `n`.
+
+**Rodadas com testemunhas aleatórias:**
+
+Para cada uma das 10 rodadas, sorteia-se uma base `a` aleatória em `[2, n-2]` e calcula-se `x = a^d mod n`. A seguir, o algoritmo testa as condições derivadas acima:
+
+- Se `x == 1` ou `x == n-1`: `n` passa nessa rodada (condições satisfeitas diretamente)
+- Caso contrário, eleva `x` ao quadrado até `r-1` vezes buscando `x == n-1`:
+  - Se encontrar: `n` passa nessa rodada
+  - Se não encontrar após `r-1` elevações: `n` é **composto com certeza** — retorna `false`
+
+Se `n` sobreviver a todas as 10 rodadas, é considerado primo com alta confiança.
+
+### 4.3 Filtragem prévia de candidatos
+
+Antes de aplicar Miller-Rabin, o método `GerarAleatorio` já descarta candidatos cujo último dígito decimal seja `0, 2, 4, 5, 6` ou `8`, pois esses números são divisíveis por 2 ou 5 e obviamente compostos. Isso reduz o número de chamadas ao teste probabilístico.
 
 ---
 
