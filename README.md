@@ -5,6 +5,27 @@
 
 ---
 
+## 0. Instruções para rodar a aplicação
+
+Foi enviado em anexo o arquivo "diffie-helman.tar".
+
+Pré-requisito: Docker instalado na máquina.
+  - Ubuntu/Debian: sudo apt install docker.io
+  - Após instalar: sudo systemctl start docker
+
+1. Navegue até a pasta onde o arquivo foi salvo:
+   cd /caminho/para/pasta
+
+2. Carregue a imagem:
+   docker load -i diffie-helman.tar
+
+3. Execute a aplicação (a flag -it é obrigatória):
+   docker run -it diffie-helman
+
+
+---
+
+
 ## 1. Descrição da Solução Desenvolvida
 
 O projeto implementa versões simplificadas do protocolo Diffie-Hellman e do esquema de criptografia ElGamal, aplicados em um sistema interativo de envio de mensagens criptografadas.
