@@ -1,27 +1,36 @@
 # Relatório de Implementação: Diffie-Hellman e ElGamal
 
-**Disciplina:** Segurança da Informação  
-**Linguagem:** Java 21  
+- **Disciplina:** Segurança da Informação  
+- **Linguagem:** Java 21  
+- **Repositório GitHub:** https://github.com/PedroHMConti/DIffie-Helman-Elgaman
+- **Imagem Docker Hub:** `pedroconti/diffie-helman`
+
+
+> **Observação:** O arquivo `diffie-helman.tar` não pôde ser enviado via Aprender3 devido a limitações da plataforma. A imagem Docker está disponível publicamente no Docker Hub e o código-fonte no GitHub, conforme links acima.
 
 ---
 
 ## 0. Instruções para rodar a aplicação
 
-Foi enviado em anexo o arquivo "diffie-helman.tar".
-
-Pré-requisito: Docker instalado na máquina.
-  - Ubuntu/Debian: sudo apt install docker.io
-  - Após instalar: sudo systemctl start docker
-
-1. Navegue até a pasta onde o arquivo foi salvo:
-   cd /caminho/para/pasta
-
-2. Carregue a imagem:
-   docker load -i diffie-helman.tar
-
-3. Execute a aplicação (a flag -it é obrigatória):
-   docker run -it diffie-helman
-
+**Pré-requisito:** Docker instalado na máquina.
+ 
+```bash
+# Ubuntu/Debian
+sudo apt install docker.io
+sudo systemctl start docker
+```
+ 
+**Passos para executar:**
+ 
+1. Baixe a imagem do Docker Hub:
+   ```bash
+   docker pull pedroconti/diffie-helman
+   ```
+ 
+2. Execute a aplicação (a flag `-it` é obrigatória):
+   ```bash
+   docker run -it pedroconti/diffie-helman
+   ```
 
 ---
 
